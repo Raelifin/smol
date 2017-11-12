@@ -101,7 +101,7 @@ with open(sys.argv[1], 'r') as f:
     code = prelude
     prefix = '    [ Instruction '
     for line in f:
-        if line == '\n':
+        if line.strip() == '' or line.strip().startswith('#'):
             continue
         code += prefix + parse_line(line) + '\n'
         prefix = '    , Instruction '

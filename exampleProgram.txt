@@ -3,3 +3,4 @@ let 102 20
 add 101 101 103
 eq? 102 103 104
 out 104
+# output should be "1"
