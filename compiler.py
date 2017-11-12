@@ -2,67 +2,66 @@ import subprocess
 import sys
 import re
 
-# TODO: Change Int to Word
 prelude = """
 import Data.Array.IO
 import Control.Monad
 
-data Instruction = Instruction (IOArray Int Int -> Int -> Int -> Int -> IO ()) Int Int Int
+data Instruction = Instruction (IOArray Word Word -> Word -> Word -> Word -> IO ()) Word Word Word
 instance Show Instruction where
     -- Somehow show operation name
     show (Instruction f x y z) = (show x) ++ " " ++ (show y) ++ " " ++ (show z)
 
-letOp :: IOArray Int Int -> Int -> Int -> Int -> IO ()
+letOp :: IOArray Word Word -> Word -> Word -> Word -> IO ()
 letOp memory locX y _ = do
     writeArray memory locX y
     return ()
 
-set :: IOArray Int Int -> Int -> Int -> Int -> IO ()
+set :: IOArray Word Word -> Word -> Word -> Word -> IO ()
 set memory locX locY _ = do
     val <- readArray memory locY
     writeArray memory locX val
     return ()
 
-add :: IOArray Int Int -> Int -> Int -> Int -> IO ()
+add :: IOArray Word Word -> Word -> Word -> Word -> IO ()
 add memory locX locY locZ = do
     x <- readArray memory locX
     y <- readArray memory locY
     writeArray memory locZ (x + y)
     return ()
 
-equals :: IOArray Int Int -> Int -> Int -> Int -> IO ()
+equals :: IOArray Word Word -> Word -> Word -> Word -> IO ()
 equals memory locX locY locZ = do
     x <- readArray memory locX
     y <- readArray memory locY
     writeArray memory locZ (if x == y then 1 else 0)
     return ()
 
-out :: IOArray Int Int -> Int -> Int -> Int -> IO ()
+out :: IOArray Word Word -> Word -> Word -> Word -> IO ()
 out memory locX _ _ = do
     x <- readArray memory locX
     putStrLn $ show $ x
 
-doInstruction :: IOArray Int Int -> Instruction -> IO ()
+doInstruction :: IOArray Word Word -> Instruction -> IO ()
 doInstruction memory (Instruction f x y z) = do
     f memory x y z
     return ()
 
 currentOpLoc = 0
 
-runProgram :: IOArray Int Int -> IO ()
+runProgram :: IOArray Word Word -> IO ()
 runProgram memory = do
     currentOp <- readArray memory currentOpLoc
-    doInstruction memory (program !! currentOp)
+    doInstruction memory (program !! (fromIntegral currentOp))
     currentOp <- readArray memory currentOpLoc
     writeArray memory currentOpLoc (currentOp + 1)
-    if (currentOp + 1) < length program then do
+    if fromIntegral (currentOp + 1) < length program then do
         runProgram memory -- Recurse
     else do
         return () -- End Program
 
 main = do
-    -- 256 memory addresses that each store Ints defaulting to 0
-    memory <- newArray (0, 255) 0 :: IO (IOArray Int Int)
+    -- 256 memory addresses that each store Words defaulting to 0
+    memory <- newArray (0, 255) 0 :: IO (IOArray Word Word)
     -- currentOpLoc is 0
     runProgram memory
 
@@ -77,7 +76,7 @@ Example program:
 , Instruction set 16 0 0 ]
 """
 
-pattern = re.compile(r'((let)|(set)|(add)|(eq\?)|(out)) (\d+)\s?(\d+)?\s?(\d+)?')
+pattern = re.compile(r'((let)|(set)|(add)|(eq\?)|(out)) (\d+)\s+(\d+)?\s+(\d+)?\s+(#.*)?')
 
 def parse_line(line):
     match = pattern.match(line)

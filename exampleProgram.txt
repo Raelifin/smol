@@ -1,6 +1,6 @@
-let 101 10
-let 102 20
-add 101 101 103
-eq? 102 103 104
-out 104
+let 101 10       # Operation 0
+let 102 20       # Operation 1
+add 101 101 103  # Operation 2
+eq? 102 103 104  # Operation 3
+out 104          # Operation 4
 # output should be "1"
