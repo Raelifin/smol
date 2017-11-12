@@ -76,7 +76,7 @@ Example program:
 , Instruction set 16 0 0 ]
 """
 
-pattern = re.compile(r'((let)|(set)|(add)|(eq\?)|(out)) (-?\d+)\s?(-?\d+)?\s?(-?\d+)?')
+pattern = re.compile(r'((let)|(set)|(add)|(eq\?)|(out)) (\d+)\s?(\d+)?\s?(\d+)?')
 
 def parse_line(line):
     match = pattern.match(line)
