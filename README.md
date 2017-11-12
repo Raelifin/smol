@@ -19,6 +19,7 @@ if you're on Windows.
 # syntax
 
 (in smol pseudocode, <x> is the address of x)
+
 all smol programs use these commands
 
 ```
@@ -33,4 +34,9 @@ where anything after the first word on a line must be a non-negative integer
 # details
 
 addresses go from 0 to 255
+
 address 0 holds the current operation number
+
+each line in smol results in a single operation (comments and blank lines are skipped)
+
+the operations are 0-indexed, so the 3rd operation is operation 2
