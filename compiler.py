@@ -2,6 +2,7 @@ import subprocess
 import sys
 import re
 
+# TODO: Change Int to Word
 prelude = """
 import Data.Array.IO
 import Control.Monad
