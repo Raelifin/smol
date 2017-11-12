@@ -1,0 +1,2 @@
+# smol
+a smol lang
