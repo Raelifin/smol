@@ -1,6 +1,15 @@
-let 101 10       # Operation 0
-let 102 20       # Operation 1
-add 101 101 103  # Operation 2
-eq? 102 103 104  # Operation 3
-out 104          # Operation 4
-# output should be "1"
+let 101 10
+let 102 20
+add 101 101 103
+eq? 102 103 104
+out 104
+
+# navigate to the folder first
+# in command prompt, type "python compiler.py exampleProgram.txt" and hit enter.
+# this just *compiles* the program.
+# then type ".\program", which actually runs the program.
+# if you make another program like this in this folder,
+# you can do the same thing by typing "python compiler.py [name of the thing]"
+# to get the latest version of this langauge when max changes stuff,
+# type "git pull" into cmd after navigating to the folder
+# by typing "cd documents" "cd code" "cd smol"

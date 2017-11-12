@@ -1,0 +1,7 @@
+let 100 0 # the base for the primary variable
+let 101 1 # creates a constant "1" to add to stuff later
+let 103 10 # creates a constant "10" to check later if we're done
+add 100 101 100 # increments the primary variable by one
+out 102 # prints the current value of the primary variable
+add 0 101 0 # skips the next line if we're done printing numbers
+let 0 3 # sends the program back to line 4 (which is 3 in atom) for another loop
