@@ -1,3 +1,6 @@
+program
+program.hs
+
 *.pyc
 
 dist
