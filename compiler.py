@@ -5,6 +5,7 @@ import re
 prelude = """
 import Data.Array.IO
 import Control.Monad
+import Data.Char (chr)
 
 data Instruction = Instruction (IOArray Word Word -> Word -> Word -> Word -> IO ()) Word Word Word
 instance Show Instruction where
@@ -39,7 +40,12 @@ equals memory locX locY locZ = do
 out :: IOArray Word Word -> Word -> Word -> Word -> IO ()
 out memory locX _ _ = do
     x <- readArray memory locX
-    putStrLn $ show $ x
+    putStrLn $ show x
+
+outChar :: IOArray Word Word -> Word -> Word -> Word -> IO ()
+outChar memory locX _ _ = do
+    x <- readArray memory locX
+    putStr [chr $ fromEnum x]
 
 doInstruction :: IOArray Word Word -> Instruction -> IO ()
 doInstruction memory (Instruction f x y z) = do
@@ -76,36 +82,71 @@ Example program:
 , Instruction set 16 0 0 ]
 """
 
-pattern = re.compile(r'((let)|(set)|(add)|(eq\?)|(out)) (\d+)\s*(\d+)?\s*(\d+)?\s*(#.*)?')
+name_pattern = re.compile(r'([\w_][\w\d_]*)\s*=\s([\w\d\?]+)')
+normal_pattern = re.compile(r'((let)|(set)|(add)|(eq\?)|(out)|(outChar)) (\d+)\s*(\d+)?\s*(\d+)?\s*(#.*)?')
 
 def parse_line(line):
-    match = pattern.match(line)
+    match = normal_pattern.match(line)
     if not match:
         print('Invalid line: ' + line)
         sys.exit(1)
-    if match.group(1) == 'let':
-        return 'letOp ' + match.group(7) + ' ' + match.group(8) + ' 0'
-    elif match.group(1) == 'set':
-        return 'set ' + match.group(7) + ' ' + match.group(8) + ' 0'
-    elif match.group(1) == 'add':
-        return 'add ' + match.group(7) + ' ' + match.group(8) + ' ' + match.group(9)
-    elif match.group(1) == 'eq?':
-        return 'equals ' + match.group(7) + ' ' + match.group(8) + ' ' + match.group(9)
-    elif match.group(1) == 'out':
-        return 'out ' + match.group(7) + ' 0 0'
-    else:
-        print('Something has gone terribly wrong with the compiler. Get Max.')
+    try:
+        if match.group(1) == 'let':
+            return 'letOp ' + match.group(8) + ' ' + match.group(9) + ' 0'
+        elif match.group(1) == 'set':
+            return 'set ' + match.group(8) + ' ' + match.group(9) + ' 0'
+        elif match.group(1) == 'add':
+            return 'add ' + match.group(8) + ' ' + match.group(9) + ' ' + match.group(10)
+        elif match.group(1) == 'eq?':
+            return 'equals ' + match.group(8) + ' ' + match.group(9) + ' ' + match.group(10)
+        elif match.group(1) == 'out':
+            return 'out ' + match.group(8) + ' 0 0'
+        elif match.group(1) == 'outChar':
+            return 'outChar ' + match.group(8) + ' 0 0'
+        else:
+            print('Something has gone terribly wrong with the compiler. Get Max.')
+            sys.exit(1)
+    except TypeError as e:
+        print('Mangled line: ' + line)
+        print(match.groups())
+        print(match.group(0))
+        print(match.group(1))
+        print(match.group(2))
         sys.exit(1)
 
-with open(sys.argv[1], 'r') as f:
+def filter_out_comments_and_empty_lines(lines):
+    return [ln for ln in lines if ln != '' and not ln.startswith('#')]
+
+def substitute_names(lines):
+    substitutions = []
+    statements = []
+    for line in lines:
+        match = name_pattern.match(line)
+        if match:
+            substitutions.append((match.group(1), match.group(2)))
+        else:
+            statements.append(line)
+    for name, value in substitutions:
+        statements = [re.sub(r'\b' + name + r'\b', value, x) for x in statements]
+    return statements
+
+def get_code(lines):
     code = prelude
     prefix = '    [ Instruction '
-    for line in f:
-        if line.strip() == '' or line.strip().startswith('#'):
-            continue
+    for line in lines:
         code += prefix + parse_line(line) + '\n'
         prefix = '    , Instruction '
     code += '    ]'
+    return code
+
+with open(sys.argv[1], 'r') as f:
+    lines = []
+    for line in f:
+        lines.append(line.strip())
+
+lines = filter_out_comments_and_empty_lines(lines)
+lines = substitute_names(lines)
+code = get_code(lines)
 
 with open('program.hs', 'w') as f:
     f.write(code)
