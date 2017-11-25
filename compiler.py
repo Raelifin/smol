@@ -146,6 +146,11 @@ with open(sys.argv[1], 'r') as f:
 
 lines = filter_out_comments_and_empty_lines(lines)
 lines = substitute_names(lines)
+
+if len(lines) < 1:
+    print("Your program must have at least one instruction.")
+    sys.exit(1)
+    
 code = get_code(lines)
 
 with open('program.hs', 'w') as f:
