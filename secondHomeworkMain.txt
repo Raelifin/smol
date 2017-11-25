@@ -1,0 +1,17 @@
+#print the first 15 fibonacci numbers
+
+let 100 1 #first item
+out 100
+let 101 1 #second item
+out 101
+add 100 101 102 #third item
+out 102 #print third item
+let 107 610
+eq? 102 107 103 #are we done?
+let 106 9 #store line number for decision
+add 103 106 0 # loop or end?
+let 0 11 #go ahead and make the next fibonacci number
+let 0 14 #end
+set 100 101 #move first item forward
+set 101 102 #move second item forward
+let 0 3 #do another loop

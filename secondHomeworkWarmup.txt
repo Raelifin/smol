@@ -1,0 +1,5 @@
+# add two values (13 and 63)
+let 100 13
+let 101 63
+add 100 101 102
+out 102

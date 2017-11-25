@@ -1,0 +1,21 @@
+# [bla bla previous code]
+
+# the increment function
+let 102 3
+let 100 1
+add 100 101 101
+set 0 102
+
+# [bla bla more code]
+
+# calling the increment function
+let 101 15
+out 101
+let 102 7
+let 0 1
+out 101
+
+# calling the increment function again
+let 102 10
+let 0 1
+out 101
