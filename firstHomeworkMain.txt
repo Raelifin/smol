@@ -1,21 +1,21 @@
 # [bla bla previous code]
 
 # the increment function
-let 102 3
-let 100 1
-add 100 101 101
-set 0 102
+let 102 3 # setting the return address to three
+let 100 1 # setting the increment magnitude to 1
+add 100 101 101 # the incrementation operation itself
+set 0 102 # sending the current op to the return address (right here on first pass)
 
 # [bla bla more code]
 
 # calling the increment function
-let 101 15
-out 101
-let 102 7
-let 0 1
-out 101
+let 101 15 # indicating the number to increment (15)
+out 101 # printing the number to increment
+let 102 7 # setting the return address
+let 0 1 # calling the increment function by sending current op to function start
+out 101 # printing the incremented number
 
 # calling the increment function again
-let 102 10
-let 0 1
-out 101
+let 102 10 # setting the return address
+let 0 1 # calling the increment function by sending the current op to function start
+out 101 # printing the incremented number
