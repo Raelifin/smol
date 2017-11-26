@@ -1,0 +1,53 @@
+#notes on variables
+#200: "user input"
+#201: "output to return with"
+#202: call number of the plus two function
+#203: call number of the doubling function
+#204: call number of the quadrupling function
+#205: return address
+#206: auxiliary return address storage space
+#207: loop counter
+#208: y/n decision space
+#10x: x ("101" contains "1", "107" contains "7" (currently goes to 3))
+
+#defining terms
+let 101 1
+let 102 2
+let 103 3
+
+#plus two function: adds two to input and prints
+add 0 101 202 #sets the call number to 202
+add 0 103 0 #skips the function until it's called
+add 102 200 201 #the plus two operation itself
+out 201 #prints output of the plus two operation
+set 0 205 #returns
+
+#doubling function: multiplies input by two and prints
+add 0 101 203 #sets the call number of doubling function to 203
+add 0 102 0 #skips the function until it's called
+add 200 200 201 #the doubling operation itself
+out 201 #prints output of doubling
+set 0 205 #returns
+
+#quadrupling function: multiplies input by four and prints
+#prep work
+add 0 101 204 #sets the call number of quadrupling function to 204
+add 0 10? 0 #skips the function until it's called
+set 206 205 #stores function-external return address at 206 so it's not overwritten
+
+#execute quadrupling via twice doubling
+add 0 101 205 #re-sets return address in prep for calling doubling function
+set 0 203 #calls the doubling function
+add 101 207 207 #notes in 207 that we've called doubling one more time
+eq? 207 102 208 #checks if we've called doubling twice and stores y/n at 209
+add 0 208 0 #decision point: execute line "call doubling again" or "print output"
+set 0 203 #calls doubling again
+out 201 #prints the quadrupled number
+set 205 206 #restores function-external return address
+set 0 205 #returns
+
+#the input block
+let 200 15 #sets input to 15; 200 will store user input in a later version
+add 205 0 101 #sets return address
+set 0 204 #calls the quadrupling function
+#replace "204" in the previous line w/whatever to send the input to a different function
