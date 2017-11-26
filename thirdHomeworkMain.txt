@@ -8,12 +8,13 @@
 #206: auxiliary return address storage space
 #207: loop counter
 #208: y/n decision space
-#10x: x ("101" contains "1", "107" contains "7" (currently goes to 3))
+#10x: x ("101" contains "1", "107" contains "7"; currently has 1,2,3,10)
 
 #defining terms
 let 101 1
 let 102 2
 let 103 3
+let 110 10
 
 #plus two function: adds two to input and prints
 add 0 101 202 #sets the call number to 202
@@ -32,7 +33,7 @@ set 0 205 #returns
 #quadrupling function: multiplies input by four and prints
 #prep work
 add 0 101 204 #sets the call number of quadrupling function to 204
-add 0 10? 0 #skips the function until it's called
+add 0 110 0 #skips the function until it's called
 set 206 205 #stores function-external return address at 206 so it's not overwritten
 
 #execute quadrupling via twice doubling
@@ -48,6 +49,6 @@ set 0 205 #returns
 
 #the input block
 let 200 15 #sets input to 15; 200 will store user input in a later version
-add 205 0 101 #sets return address
-set 0 204 #calls the quadrupling function
-#replace "204" in the previous line w/whatever to send the input to a different function
+add 0 101 205 #sets return address
+set 0 202 #calls a function
+#replace "20x" in the previous line w/whatever to send the input to a different function
