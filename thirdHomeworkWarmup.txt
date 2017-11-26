@@ -1,0 +1,35 @@
+# an increment function that doesn't rely on manually counting lines
+
+# [bla bla previous code]
+
+# defining terms
+# 104: "2"
+# 105: "1"
+# 100: increment magnitude
+# 101: number to increment
+# 102: return address
+# 103: increment function call number
+
+let 104 2 # storing a "2" magnitude for when i want to skip 2 lines
+let 105 1 # storing a "1" magnitude for wen i want to skip 1 line
+let 100 1 # setting the increment magnitude (to "1", in this case)
+add 0 105 103 # setting the increment function call number to 1 line past here
+add 0 104 0 # skipping the function itself (2 lines) on the first pass
+
+# the increment function
+add 100 101 101 # the incrementation operation itself
+set 0 102 # sending the current op to the return address (right here on first pass)
+
+# [bla bla more code]
+
+# calling the increment function
+let 101 23 # indicating the number to increment (15)
+out 101 # printing the number to increment
+add 0 105 102 # setting the return address (to one line past here)
+set 0 103 # calling the increment function by setting current op to its call number
+out 101 # printing the incremented number
+
+# calling the increment function again
+add 0 105 102 # setting the return address (to one line past here)
+set 0 103 # calling the increment function by setting current op to its call number
+out 101 # printing the incremented number
