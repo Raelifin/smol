@@ -11,7 +11,7 @@
 # 103: increment function call number
 
 let 104 2 # storing a "2" magnitude for when i want to skip 2 lines
-let 105 1 # storing a "1" magnitude for wen i want to skip 1 line
+let 105 1 # storing a "1" magnitude for when i want to skip 1 line
 let 100 5 # setting the increment magnitude
 add 0 105 103 # setting the increment function call number to 1 line past here
 add 0 104 0 # skipping the function itself (2 lines) on the first pass
