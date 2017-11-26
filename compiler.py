@@ -30,6 +30,13 @@ add memory locX locY locZ = do
     writeArray memory locZ (x + y)
     return ()
 
+maxi :: IOArray Word Word -> Word -> Word -> Word -> IO ()
+maxi memory locX locY locZ = do
+    x <- readArray memory locX
+    y <- readArray memory locY
+    writeArray memory locZ (max x y)
+    return ()
+
 equals :: IOArray Word Word -> Word -> Word -> Word -> IO ()
 equals memory locX locY locZ = do
     x <- readArray memory locX
@@ -83,7 +90,7 @@ Example program:
 """
 
 name_pattern = re.compile(r'([\w_][\w\d_]*)\s*=\s([\w\d\?]+)')
-normal_pattern = re.compile(r'((let)|(set)|(add)|(eq\?)|(out)|(outChar)) (\d+)\s*(\d+)?\s*(\d+)?\s*(#.*)?')
+normal_pattern = re.compile(r'((let)|(set)|(add)|(max)|(eq\?)|(out)|(outChar)) (\d+)\s*(\d+)?\s*(\d+)?\s*(#.*)?')
 
 def parse_line(line):
     match = normal_pattern.match(line)
@@ -92,17 +99,19 @@ def parse_line(line):
         sys.exit(1)
     try:
         if match.group(1) == 'let':
-            return 'letOp ' + match.group(8) + ' ' + match.group(9) + ' 0'
+            return 'letOp ' + match.group(9) + ' ' + match.group(10) + ' 0'
         elif match.group(1) == 'set':
-            return 'set ' + match.group(8) + ' ' + match.group(9) + ' 0'
+            return 'set ' + match.group(9) + ' ' + match.group(10) + ' 0'
         elif match.group(1) == 'add':
-            return 'add ' + match.group(8) + ' ' + match.group(9) + ' ' + match.group(10)
+            return 'add ' + match.group(9) + ' ' + match.group(10) + ' ' + match.group(11)
+        elif match.group(1) == 'max':
+            return 'maxi ' + match.group(9) + ' ' + match.group(10) + ' ' + match.group(11)
         elif match.group(1) == 'eq?':
-            return 'equals ' + match.group(8) + ' ' + match.group(9) + ' ' + match.group(10)
+            return 'equals ' + match.group(9) + ' ' + match.group(10) + ' ' + match.group(11)
         elif match.group(1) == 'out':
-            return 'out ' + match.group(8) + ' 0 0'
+            return 'out ' + match.group(9) + ' 0 0'
         elif match.group(1) == 'outChar':
-            return 'outChar ' + match.group(8) + ' 0 0'
+            return 'outChar ' + match.group(9) + ' 0 0'
         else:
             print('Something has gone terribly wrong with the compiler. Get Max.')
             sys.exit(1)
@@ -150,7 +159,7 @@ lines = substitute_names(lines)
 if len(lines) < 1:
     print("Your program must have at least one instruction.")
     sys.exit(1)
-    
+
 code = get_code(lines)
 
 with open('program.hs', 'w') as f:
