@@ -25,6 +25,13 @@ set 0 205 #returns
 
 #doubling function: multiplies input by two and prints
 add 0 101 203 #sets the call number of doubling function to 203
+
+# Max says:
+# The following instruction is marked as 102 instead of 103, like in the function above.
+# By mis-counting the size of your function you're jumping to the return statement.
+# 205 (the return address) starts at 0, so it ends up "returning" to the top of the file and
+# looping infinitely.
+
 add 0 102 0 #skips the function until it's called
 add 200 200 201 #the doubling operation itself
 out 201 #prints output of doubling
@@ -39,10 +46,22 @@ set 206 205 #stores function-external return address at 206 so it's not overwrit
 #execute quadrupling via twice doubling
 add 0 101 205 #re-sets return address in prep for calling doubling function
 set 0 203 #calls the doubling function
+
+# There maybe ought to be a line here that does something with the return value. -Max
+
 add 101 207 207 #notes in 207 that we've called doubling one more time
 eq? 207 102 208 #checks if we've called doubling twice and stores y/n at 209
 add 0 208 0 #decision point: execute line "call doubling again" or "print output"
 set 0 203 #calls doubling again
+
+# Max says:
+# This next line prints the number, but that's already done by the doubling function.
+# This is a good example of a function "side-effect". Our doubling function doesn't just double,
+# it also outputs, which can make it less useful for re-using in other parts of the code.
+# When programmers talk about "functions without side effects" or "pure functions" this is what
+# they're referencing. (Technically pure functions are a little more restrictive, but we'll get
+# to that later.)
+
 out 201 #prints the quadrupled number
 set 205 206 #restores function-external return address
 set 0 205 #returns
