@@ -1,0 +1,6 @@
+#just negation
+
+let 100 0 #input
+
+eq? 100 101 102 #is the input zero?
+out 102 #prints the negation of the input
