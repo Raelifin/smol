@@ -7,6 +7,7 @@
 #140: call number of material implication
 #130: return address
 #207: output of any truth function called
+#666: indicates a type error
 #just some numbers to use for skipping lines and stuff
 let 110 1
 let 112 2
@@ -48,9 +49,24 @@ add 0 110 0 #skips the next line
 set 207 201 #outputs 1
 set 0 130 #returns
 
+#INPUT BLOCK
+
 #the two inputs for the truth function
-let 100 0 #first input
+let 100 1 #first input
 let 101 0 #second input
+
+#type checker
+let 178 666
+eq? 100 220 170 #is the first input a zero?
+eq? 100 110 171 #is the first input a one?
+eq? 101 220 172 #is the second input a zero?
+eq? 101 110 173 #is the second input a one?
+add 170 171 174 #is the first input either a one or a zero?
+add 172 173 175 #is the second input either a one or a zero?
+add 174 175 176 #176 should contain 2 if the inputs are both truth values
+eq? 176 112 177 #177 contains 1 if both inputs are truth values, else it contains zero
+add 0 177 0 #skip the next line if all is well
+out 178 #prints 666 if user input something besides one or zero
 
 #which truth function do you want to call?
 add 0 110 130 #sets the return address
