@@ -1,6 +1,6 @@
 #three truth-functional binary operators: and, or, and if-then
 
-#my use of the abuse of the namespace in this version of the program is unforgivable.
+#my abuse of the namespace in this version of the program is unforgivable.
 
 #141: call number of conjunction
 #142: call number of inclusive disjunction
