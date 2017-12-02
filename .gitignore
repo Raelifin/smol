@@ -1,5 +1,6 @@
 program
 program.hs
+program.exe
 
 *.pyc
 
