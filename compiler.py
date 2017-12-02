@@ -2,81 +2,87 @@ import subprocess
 import sys
 import re
 
+debugImports = """
+import Graphics.Gloss
+import Graphics.Gloss.Interface.IO.Game
+"""
+
 prelude = """
+import Data.Array.MArray
 import Data.Array.IO
 import Control.Monad
 import Data.Char (chr)
 
-data Instruction = Instruction (IOArray Word Word -> Word -> Word -> Word -> IO ()) Word Word Word
+data Instruction = Instruction (IOUArray Word Word -> Word -> Word -> Word -> IO ()) Word Word Word
 instance Show Instruction where
     -- Somehow show operation name
     show (Instruction f x y z) = (show x) ++ " " ++ (show y) ++ " " ++ (show z)
 
-letOp :: IOArray Word Word -> Word -> Word -> Word -> IO ()
+letOp :: IOUArray Word Word -> Word -> Word -> Word -> IO ()
 letOp memory locX y _ = do
     writeArray memory locX y
     return ()
 
-set :: IOArray Word Word -> Word -> Word -> Word -> IO ()
+set :: IOUArray Word Word -> Word -> Word -> Word -> IO ()
 set memory locX locY _ = do
     val <- readArray memory locY
     writeArray memory locX val
     return ()
 
-add :: IOArray Word Word -> Word -> Word -> Word -> IO ()
+add :: IOUArray Word Word -> Word -> Word -> Word -> IO ()
 add memory locX locY locZ = do
     x <- readArray memory locX
     y <- readArray memory locY
     writeArray memory locZ (x + y)
     return ()
 
-maxi :: IOArray Word Word -> Word -> Word -> Word -> IO ()
+maxi :: IOUArray Word Word -> Word -> Word -> Word -> IO ()
 maxi memory locX locY locZ = do
     x <- readArray memory locX
     y <- readArray memory locY
     writeArray memory locZ (max x y)
     return ()
 
-equals :: IOArray Word Word -> Word -> Word -> Word -> IO ()
+equals :: IOUArray Word Word -> Word -> Word -> Word -> IO ()
 equals memory locX locY locZ = do
     x <- readArray memory locX
     y <- readArray memory locY
     writeArray memory locZ (if x == y then 1 else 0)
     return ()
 
-out :: IOArray Word Word -> Word -> Word -> Word -> IO ()
+out :: IOUArray Word Word -> Word -> Word -> Word -> IO ()
 out memory locX _ _ = do
     x <- readArray memory locX
     putStrLn $ show x
 
-outChar :: IOArray Word Word -> Word -> Word -> Word -> IO ()
+outChar :: IOUArray Word Word -> Word -> Word -> Word -> IO ()
 outChar memory locX _ _ = do
     x <- readArray memory locX
     putStr [chr $ fromEnum x]
 
-doInstruction :: IOArray Word Word -> Instruction -> IO ()
-doInstruction memory (Instruction f x y z) = do
-    f memory x y z
-    return ()
+doInstruction :: IOUArray Word Word -> Instruction -> IO ()
+doInstruction memory (Instruction f x y z) = f memory x y z
 
 currentOpLoc = 0
 
-runProgram :: IOArray Word Word -> IO ()
-runProgram memory = do
-    currentOp <- readArray memory currentOpLoc
+step :: IOUArray Word Word -> IO (IOUArray Word Word)
+step memory = do
+  currentOp <- readArray memory currentOpLoc
+  if fromIntegral currentOp < length program then do
     doInstruction memory (program !! (fromIntegral currentOp))
     currentOp <- readArray memory currentOpLoc
     writeArray memory currentOpLoc (currentOp + 1)
-    if fromIntegral (currentOp + 1) < length program then do
-        runProgram memory -- Recurse
+    return memory
+  else return memory
+
+runProgram :: IOUArray Word Word -> IO ()
+runProgram memory = do
+    step memory
+    currentOp <- readArray memory currentOpLoc
+    if fromIntegral currentOp < length program then do
+        runProgram memory -- Continue
     else do
         return () -- End Program
-
-main = do
-    -- 256 memory addresses that each store Words defaulting to 0
-    memory <- newArray (0, 255) 0 :: IO (IOArray Word Word)
-    -- currentOpLoc is 0
-    runProgram memory
 
 program :: [Instruction]
 program =
@@ -87,6 +93,51 @@ Example program:
 [ Instruction add 10 10 17
 , Instruction equals 20 20 16
 , Instruction set 16 0 0 ]
+"""
+
+standardMain = """
+main = do
+    -- 256 memory addresses that each store Words defaulting to 0
+    memory <- newArray (0, 255) 0 :: IO (IOUArray Word Word)
+    runProgram memory
+"""
+
+debugMain = """
+window :: Display
+window = InWindow "smol debug" (800, 600) (10, 10)
+
+background :: Color
+background = white
+
+fps :: Int
+fps = 30
+
+render :: IOUArray Word Word -> IO Picture
+render memory = do
+  elems <- getElems memory
+  let memPic = translate (-380) 280 $ scale 0.1 0.1 $ renderMemoryElems elems
+  return memPic
+
+renderMemoryElems :: [Word] -> Picture
+renderMemoryElems elems = results where
+  results = pictures offsetPics
+  offsetPics = offset <$> zip pics [0..]
+  pics = text <$> show <$> elems
+  offset (pic, idx) = translate (xOffset idx) (yOffset idx) pic
+  xOffset idx = fromIntegral $ 600 * (idx `div` 25)
+  yOffset idx = fromIntegral $ (-180) * (idx `mod` 25)
+
+handleKeys :: Event -> IOUArray Word Word -> IO (IOUArray Word Word)
+handleKeys (EventKey (SpecialKey KeySpace) Down _ _) memory = step memory
+handleKeys _ memory = return memory
+
+update :: Float -> IOUArray Word Word -> IO (IOUArray Word Word)
+update _delta memory = return memory
+
+main = do
+  -- | 256 memory addresses that each store Words defaulting to 0
+  memory <- newArray (0, 255) 0 :: IO (IOUArray Word Word)
+  playIO window background fps memory render handleKeys update
 """
 
 name_pattern = re.compile(r'([\w_][\w\d_]*)\s*=\s([\w\d\?]+)')
@@ -139,13 +190,14 @@ def substitute_names(lines):
         statements = [re.sub(r'\b' + name + r'\b', value, x) for x in statements]
     return statements
 
-def get_code(lines):
-    code = prelude
+def get_code(lines, debug=False):
+    code = debugImports + prelude if debug else prelude
     prefix = '    [ Instruction '
     for line in lines:
         code += prefix + parse_line(line) + '\n'
         prefix = '    , Instruction '
     code += '    ]'
+    code += debugMain if debug else standardMain
     return code
 
 with open(sys.argv[1], 'r') as f:
@@ -160,10 +212,10 @@ if len(lines) < 1:
     print("Your program must have at least one instruction.")
     sys.exit(1)
 
-code = get_code(lines)
+code = get_code(lines, len(sys.argv) > 2 and sys.argv[2] == '--debug')
 
 with open('program.hs', 'w') as f:
     f.write(code)
 
-subprocess.call(['ghc', 'program.hs'])
+subprocess.call(['stack', 'ghc', 'program.hs'])
 # print('Your program now exists in this folder.')
