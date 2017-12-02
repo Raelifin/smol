@@ -1,0 +1,76 @@
+#three truth-functional binary operators: and, or, and if-then
+
+#my abuse of the namespace in this version of the program is unforgivable.
+
+#141: call number of conjunction
+#142: call number of inclusive disjunction
+#140: call number of material implication
+#130: return address
+#207: output of any truth function called
+#666: indicates a type error
+#just some numbers to use for skipping lines and stuff
+let 110 1
+let 112 2
+let 113 3
+let 114 4
+let 119 9
+let 120 10
+
+
+#conjunction
+
+add 0 110 141 #sets the call number to 141
+add 0 113 0 #skips function until it's called
+add 100 101 150 #adds the two inputs
+eq? 112 150 207 #checks if they were both ones (by checking if they added to 2)
+set 0 130 #returns
+
+#inclusive disjunction
+
+add 0 110 142 #sets the call number to 142
+add 0 114 0 #skips function until it's called
+add 100 101 151 #adds the two inputs
+eq? 160 151 152 #stores a 1 if both inputs were zero, else stores 0
+eq? 152 160 207 #negation of "both inputs were zero"
+set 0 130 #returns
+
+#material implication
+
+add 0 110 140 #sets call number to 140
+add 0 120 0 #skips the function until it's called
+eq? 100 200 201 #is the first input a 0?
+eq? 201 205 206 #logical negation of "first input is zero"
+add 0 206 0 #decision point: iff first input was a 1, skip the next line
+add 0 114 0 #if the first input was a 0, we're done, so skip to the end (and print 1)
+eq? 101 200 201 #is the second input 0?
+eq? 201 202 203 #logical negation of "second input is zero"
+set 207 203 #outputs 0 if inputs (0,1), or 1 if inputs (1,0)
+add 0 110 0 #skips the next line
+set 207 201 #outputs 1
+set 0 130 #returns
+
+#INPUT BLOCK
+
+#the two inputs for the truth function
+let 100 1 #first input
+let 101 0 #second input
+
+#type checker
+let 178 666
+eq? 100 220 170 #is the first input a zero?
+eq? 100 110 171 #is the first input a one?
+eq? 101 220 172 #is the second input a zero?
+eq? 101 110 173 #is the second input a one?
+add 170 171 174 #is the first input either a one or a zero?
+add 172 173 175 #is the second input either a one or a zero?
+add 174 175 176 #176 should contain 2 if the inputs are both truth values
+eq? 176 112 177 #177 contains 1 if both inputs are truth values, else it contains zero
+add 0 177 0 #skip the next line if all is well
+out 178 #prints 666 if user input something besides one or zero
+
+#which truth function do you want to call?
+add 0 110 130 #sets the return address
+#set 0 141 #calls conjunction ("and")
+set 0 142 #calls inclusive disjunction ("or")
+#set 0 140 #calls material implication ("if-then")
+out 207 #prints the output
